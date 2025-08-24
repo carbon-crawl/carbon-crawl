@@ -1,0 +1,422 @@
+/**
+ * Carbon Calculator Utility
+ * Calculates CO2 savings based on activity type, category, and metrics
+ */
+
+// Carbon emission factors (kg CO2 equivalent per unit)
+const EMISSION_FACTORS = {
+  transportation: {
+    // Per km
+    walk: -0.21, // Avoided car emissions
+    bike: -0.21,
+    public_transport: -0.15, // Vs car
+    carpool: -0.105, // Half car emissions avoided
+    electric_car: -0.15, // Vs gas car
+    hybrid_car: -0.08,
+    avoided_flight: -0.255, // Per km
+    telecommute: -8.5 // Per day (avg commute)
+  },
+  energy: {
+    // Per kWh or per day
+    solar_energy: -0.45, // Per kWh replaced
+    led_bulbs: -0.02, // Per hour of use
+    energy_efficient_appliances: -1.2, // Per day
+    reduced_heating: -2.5, // Per degree per day
+    reduced_cooling: -2.8, // Per degree per day
+    unplugged_devices: -0.5 // Per device per day
+  },
+  food: {
+    // Per meal or per kg
+    vegetarian_meal: -1.9, // Vs meat meal
+    vegan_meal: -2.5,
+    local_food: -0.8, // Per kg vs imported
+    organic_food: -0.3, // Per kg
+    reduced_meat: -6.6, // Per 100g meat avoided
+    composting: -0.5, // Per kg organic waste
+    grow_own_food: -0.4 // Per kg produced
+  },
+  waste: {
+    // Per kg or per item
+    recycling: -0.3, // Per kg recycled
+    reuse: -0.8, // Per item reused
+    reduce_packaging: -0.1, // Per package avoided
+    digital_receipts: -0.003, // Per receipt
+    repair_item: -2.0 // Per item repaired vs new
+  },
+  water: {
+    // Per liter or per day
+    shorter_shower: -0.006, // Per liter saved
+    fix_leak: -0.5, // Per day
+    rainwater_harvest: -0.002, // Per liter collected
+    efficient_dishwasher: -0.3 // Per load
+  },
+  shopping: {
+    // Per item or purchase
+    second_hand: -5.0, // Per item vs new
+    sustainable_brands: -1.0, // Per purchase
+    buy_less: -2.0, // Per avoided purchase
+    durable_goods: -3.0 // Per item vs disposable
+  },
+  other: {
+    // Per unit or activity
+    tree_planting: -22.0, // Per tree over lifetime
+    education: -0.5, // Per person educated
+    volunteering: -1.0, // Per hour
+    advocacy: -2.0 // Per action/post
+  }
+};
+
+// Default metrics for activities without specific measurements
+const DEFAULT_METRICS = {
+  transportation: {
+    walk: { distance: 2 }, // km
+    bike: { distance: 5 },
+    public_transport: { distance: 10 },
+    carpool: { distance: 20 },
+    electric_car: { distance: 30 },
+    hybrid_car: { distance: 25 },
+    telecommute: { quantity: 1 } // days
+  },
+  energy: {
+    solar_energy: { quantity: 10 }, // kWh
+    led_bulbs: { duration: 480 }, // minutes (8 hours)
+    energy_efficient_appliances: { quantity: 1 },
+    reduced_heating: { quantity: 2 }, // degrees
+    reduced_cooling: { quantity: 2 },
+    unplugged_devices: { quantity: 3 }
+  },
+  food: {
+    vegetarian_meal: { quantity: 1 },
+    vegan_meal: { quantity: 1 },
+    local_food: { quantity: 1 }, // kg
+    organic_food: { quantity: 0.5 },
+    reduced_meat: { quantity: 100 }, // grams
+    composting: { quantity: 2 },
+    grow_own_food: { quantity: 1 }
+  },
+  waste: {
+    recycling: { quantity: 1 }, // kg
+    reuse: { quantity: 1 },
+    reduce_packaging: { quantity: 3 },
+    digital_receipts: { quantity: 5 },
+    repair_item: { quantity: 1 }
+  },
+  water: {
+    shorter_shower: { quantity: 20 }, // liters saved
+    fix_leak: { quantity: 1 }, // days
+    rainwater_harvest: { quantity: 100 }, // liters
+    efficient_dishwasher: { quantity: 1 }
+  },
+  shopping: {
+    second_hand: { quantity: 1 },
+    sustainable_brands: { quantity: 1 },
+    buy_less: { quantity: 1 },
+    durable_goods: { quantity: 1 }
+  },
+  other: {
+    tree_planting: { quantity: 1 },
+    education: { quantity: 5 }, // people
+    volunteering: { duration: 120 }, // minutes
+    advocacy: { quantity: 1 }
+  }
+};
+
+/**
+ * Calculate carbon savings for an activity
+ * @param {string} type - Activity type (transportation, energy, etc.)
+ * @param {string} category - Specific category within type
+ * @param {Object} metrics - Activity metrics (distance, duration, quantity)
+ * @returns {number} Carbon savings in kg CO2 equivalent (negative = savings, positive = emissions)
+ */
+function calculateCarbonSavings(type, category, metrics = {}) {
+  // Get emission factor
+  const emissionFactor = EMISSION_FACTORS[type]?.[category];
+  if (emissionFactor === undefined) {
+    console.warn(`Unknown activity type/category: ${type}/${category}`);
+    return 0;
+  }
+
+  // Use provided metrics or defaults
+  const activityMetrics = { ...DEFAULT_METRICS[type]?.[category], ...metrics };
+  
+  let carbonImpact = 0;
+
+  // Calculate based on metric type
+  if (activityMetrics.distance) {
+    // Distance-based activities (transportation)
+    carbonImpact = emissionFactor * activityMetrics.distance;
+  } else if (activityMetrics.duration) {
+    // Time-based activities (convert minutes to hours for calculation)
+    const hours = activityMetrics.duration / 60;
+    carbonImpact = emissionFactor * hours;
+  } else if (activityMetrics.quantity) {
+    // Quantity-based activities
+    carbonImpact = emissionFactor * activityMetrics.quantity;
+  } else {
+    // Default to 1 unit if no metrics provided
+    carbonImpact = emissionFactor;
+  }
+
+  // Return absolute value since we want positive savings
+  return Math.abs(carbonImpact);
+}
+
+/**
+ * Get carbon impact estimates for different quantities of an activity
+ * @param {string} type - Activity type
+ * @param {string} category - Activity category
+ * @returns {Array} Array of {quantity, impact} objects
+ */
+function getCarbonEstimates(type, category) {
+  const emissionFactor = EMISSION_FACTORS[type]?.[category];
+  if (!emissionFactor) return [];
+
+  const defaultMetric = DEFAULT_METRICS[type]?.[category];
+  if (!defaultMetric) return [];
+
+  const estimates = [];
+  const baseMetric = Object.keys(defaultMetric)[0];
+  const multipliers = [0.5, 1, 2, 5, 10];
+
+  for (const multiplier of multipliers) {
+    const metrics = { [baseMetric]: defaultMetric[baseMetric] * multiplier };
+    const impact = calculateCarbonSavings(type, category, metrics);
+    
+    estimates.push({
+      [baseMetric]: metrics[baseMetric],
+      carbonSaved: impact
+    });
+  }
+
+  return estimates;
+}
+
+/**
+ * Calculate total carbon impact for multiple activities
+ * @param {Array} activities - Array of activity objects
+ * @returns {Object} Summary of carbon impact
+ */
+function calculateTotalImpact(activities) {
+  let totalSavings = 0;
+  let totalActivities = activities.length;
+  const categoryBreakdown = {};
+  const typeBreakdown = {};
+
+  for (const activity of activities) {
+    const { type, category, carbonSaved } = activity;
+    
+    totalSavings += carbonSaved || 0;
+    
+    // Category breakdown
+    if (!categoryBreakdown[category]) {
+      categoryBreakdown[category] = { count: 0, carbonSaved: 0 };
+    }
+    categoryBreakdown[category].count += 1;
+    categoryBreakdown[category].carbonSaved += carbonSaved || 0;
+    
+    // Type breakdown
+    if (!typeBreakdown[type]) {
+      typeBreakdown[type] = { count: 0, carbonSaved: 0 };
+    }
+    typeBreakdown[type].count += 1;
+    typeBreakdown[type].carbonSaved += carbonSaved || 0;
+  }
+
+  return {
+    totalSavings,
+    totalActivities,
+    averageSavings: totalActivities > 0 ? totalSavings / totalActivities : 0,
+    categoryBreakdown,
+    typeBreakdown
+  };
+}
+
+/**
+ * Get environmental impact equivalents for carbon savings
+ * @param {number} carbonSaved - Carbon saved in kg CO2
+ * @returns {Object} Various equivalent impacts
+ */
+function getCarbonEquivalents(carbonSaved) {
+  return {
+    treesPlanted: Math.round((carbonSaved / 22) * 100) / 100, // Trees needed to absorb CO2
+    milesNotDriven: Math.round((carbonSaved / 0.404) * 100) / 100, // Miles of average car driving
+    coalNotBurned: Math.round((carbonSaved / 2.23) * 100) / 100, // Pounds of coal
+    homePowerDays: Math.round((carbonSaved / 28.9) * 100) / 100, // Days of average home power
+    phoneCharges: Math.round((carbonSaved / 0.000005) * 100) / 100, // Smartphone charges
+    lightBulbHours: Math.round((carbonSaved / 0.0002) * 100) / 100 // LED bulb hours
+  };
+}
+
+/**
+ * Validate activity metrics based on type and category
+ * @param {string} type - Activity type
+ * @param {string} category - Activity category
+ * @param {Object} metrics - Provided metrics
+ * @returns {Object} Validation result
+ */
+function validateMetrics(type, category, metrics) {
+  const errors = [];
+  const defaultMetrics = DEFAULT_METRICS[type]?.[category];
+  
+  if (!defaultMetrics) {
+    errors.push(`Invalid activity type/category: ${type}/${category}`);
+    return { isValid: false, errors };
+  }
+
+  // Check for required metric types
+  const expectedMetricKeys = Object.keys(defaultMetrics);
+  const providedMetricKeys = Object.keys(metrics || {});
+  
+  // Validate metric values
+  for (const key of providedMetricKeys) {
+    const value = metrics[key];
+    
+    if (typeof value !== 'number' || value < 0) {
+      errors.push(`${key} must be a positive number`);
+    }
+    
+    // Reasonable bounds checking
+    if (key === 'distance' && value > 10000) {
+      errors.push('Distance seems unreasonably high (>10,000 km)');
+    }
+    
+    if (key === 'duration' && value > 1440) {
+      errors.push('Duration seems unreasonably high (>24 hours)');
+    }
+    
+    if (key === 'quantity' && value > 1000) {
+      errors.push('Quantity seems unreasonably high (>1000 units)');
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+    expectedMetrics: expectedMetricKeys
+  };
+}
+
+/**
+ * Get activity suggestions based on user's history and carbon impact
+ * @param {Array} userActivities - User's previous activities
+ * @returns {Array} Suggested activities for maximum impact
+ */
+function getSuggestedActivities(userActivities = []) {
+  // Analyze user's activity patterns
+  const typeFrequency = {};
+  const categoryFrequency = {};
+  
+  for (const activity of userActivities) {
+    typeFrequency[activity.type] = (typeFrequency[activity.type] || 0) + 1;
+    categoryFrequency[activity.category] = (categoryFrequency[activity.category] || 0) + 1;
+  }
+
+  // Find underutilized high-impact activities
+  const suggestions = [];
+  
+  for (const [type, categories] of Object.entries(EMISSION_FACTORS)) {
+    for (const [category, factor] of Object.entries(categories)) {
+      const impact = Math.abs(factor);
+      const frequency = categoryFrequency[category] || 0;
+      
+      // Suggest high-impact, low-frequency activities
+      if (impact > 1.0 && frequency < 3) {
+        suggestions.push({
+          type,
+          category,
+          potentialSavings: impact,
+          frequency,
+          priority: impact / (frequency + 1) // Higher priority for high impact, low frequency
+        });
+      }
+    }
+  }
+
+  // Sort by priority and return top suggestions
+  return suggestions
+    .sort((a, b) => b.priority - a.priority)
+    .slice(0, 10)
+    .map(suggestion => ({
+      type: suggestion.type,
+      category: suggestion.category,
+      potentialSavings: suggestion.potentialSavings,
+      description: getActivityDescription(suggestion.type, suggestion.category)
+    }));
+}
+
+/**
+ * Get human-readable description for an activity
+ * @param {string} type - Activity type
+ * @param {string} category - Activity category
+ * @returns {string} Description
+ */
+function getActivityDescription(type, category) {
+  const descriptions = {
+    transportation: {
+      walk: 'Walk instead of driving for short distances',
+      bike: 'Cycle to work or for errands',
+      public_transport: 'Use public transport instead of private car',
+      carpool: 'Share rides with others',
+      electric_car: 'Use electric vehicle instead of gas car',
+      hybrid_car: 'Choose hybrid over conventional vehicle',
+      avoided_flight: 'Take train or avoid unnecessary flights',
+      telecommute: 'Work from home to avoid commuting'
+    },
+    energy: {
+      solar_energy: 'Use solar panels or renewable energy',
+      led_bulbs: 'Replace incandescent bulbs with LED',
+      energy_efficient_appliances: 'Use ENERGY STAR appliances',
+      reduced_heating: 'Lower thermostat by a few degrees',
+      reduced_cooling: 'Raise AC temperature setting',
+      unplugged_devices: 'Unplug electronics when not in use'
+    },
+    food: {
+      vegetarian_meal: 'Choose vegetarian option over meat',
+      vegan_meal: 'Enjoy plant-based meals',
+      local_food: 'Buy locally produced food',
+      organic_food: 'Choose organic products',
+      reduced_meat: 'Reduce meat consumption',
+      composting: 'Compost organic waste',
+      grow_own_food: 'Grow vegetables or herbs at home'
+    },
+    waste: {
+      recycling: 'Recycle paper, plastic, and metal',
+      reuse: 'Repurpose items instead of throwing away',
+      reduce_packaging: 'Choose products with minimal packaging',
+      digital_receipts: 'Opt for digital receipts',
+      repair_item: 'Repair items instead of buying new'
+    },
+    water: {
+      shorter_shower: 'Take shorter showers',
+      fix_leak: 'Fix water leaks promptly',
+      rainwater_harvest: 'Collect rainwater for plants',
+      efficient_dishwasher: 'Run full loads in efficient dishwasher'
+    },
+    shopping: {
+      second_hand: 'Buy second-hand instead of new',
+      sustainable_brands: 'Choose environmentally conscious brands',
+      buy_less: 'Practice mindful consumption',
+      durable_goods: 'Invest in quality, long-lasting products'
+    },
+    other: {
+      tree_planting: 'Plant trees in your community',
+      education: 'Educate others about climate action',
+      volunteering: 'Volunteer for environmental causes',
+      advocacy: 'Advocate for climate policies'
+    }
+  };
+
+  return descriptions[type]?.[category] || `${category.replace(/_/g, ' ')} activity`;
+}
+
+module.exports = {
+  calculateCarbonSavings,
+  getCarbonEstimates,
+  calculateTotalImpact,
+  getCarbonEquivalents,
+  validateMetrics,
+  getSuggestedActivities,
+  getActivityDescription,
+  EMISSION_FACTORS,
+  DEFAULT_METRICS
+};

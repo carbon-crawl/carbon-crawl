@@ -1,0 +1,249 @@
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+
+const userSchema = new mongoose.Schema({
+  fullName: {
+    type: String,
+    required: true,
+    trim: true,
+    maxlength: 100
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true,
+    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
+  },
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    minlength: 3,
+    maxlength: 30,
+    match: [/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores']
+  },
+  password: {
+    type: String,
+    required: function() {
+      return !this.googleId && !this.facebookId;
+    },
+    minlength: 6
+  },
+  avatar: {
+    type: String,
+    default: null
+  },
+  bio: {
+    type: String,
+    maxlength: 500,
+    default: ''
+  },
+  location: {
+    city: String,
+    country: String,
+    coordinates: {
+      latitude: Number,
+      longitude: Number
+    }
+  },
+  preferences: {
+    units: {
+      type: String,
+      enum: ['metric', 'imperial'],
+      default: 'metric'
+    },
+    privacy: {
+      profilePublic: { type: Boolean, default: true },
+      showLocation: { type: Boolean, default: false },
+      showStats: { type: Boolean, default: true }
+    },
+    notifications: {
+      email: { type: Boolean, default: true },
+      push: { type: Boolean, default: true },
+      challenges: { type: Boolean, default: true },
+      achievements: { type: Boolean, default: true }
+    }
+  },
+  stats: {
+    totalCarbonSaved: { type: Number, default: 0 }, // in kg CO2
+    currentStreak: { type: Number, default: 0 }, // days
+    longestStreak: { type: Number, default: 0 }, // days
+    totalActivities: { type: Number, default: 0 },
+    level: { type: Number, default: 1 },
+    experience: { type: Number, default: 0 },
+    badges: [{
+      name: String,
+      description: String,
+      icon: String,
+      earnedAt: Date
+    }]
+  },
+  social: {
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+  },
+  // OAuth fields
+  googleId: String,
+  facebookId: String,
+  // Account status
+  isActive: { type: Boolean, default: true },
+  isVerified: { type: Boolean, default: false },
+  verificationToken: String,
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
+  lastLogin: Date,
+  loginCount: { type: Number, default: 0 }
+}, {
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+});
+
+// Indexes
+userSchema.index({ email: 1 });
+userSchema.index({ username: 1 });
+userSchema.index({ 'location.coordinates': '2dsphere' });
+userSchema.index({ createdAt: -1 });
+
+// Virtual for level progress
+userSchema.virtual('levelProgress').get(function() {
+  const experienceForNextLevel = this.level * 1000;
+  const currentLevelExperience = (this.level - 1) * 1000;
+  const progress = ((this.experience - currentLevelExperience) / (experienceForNextLevel - currentLevelExperience)) * 100;
+  return Math.min(100, Math.max(0, progress));
+});
+
+// Virtual for follower/following counts
+userSchema.virtual('followerCount').get(function() {
+  return this.social.followers.length;
+});
+
+userSchema.virtual('followingCount').get(function() {
+  return this.social.following.length;
+});
+
+// Pre-save middleware to hash password
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  
+  try {
+    const salt = await bcrypt.genSalt(12);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Method to compare passwords
+userSchema.methods.comparePassword = async function(candidatePassword) {
+  if (!this.password) return false;
+  return bcrypt.compare(candidatePassword, this.password);
+};
+
+// Method to add experience and handle level ups
+userSchema.methods.addExperience = function(points) {
+  this.stats.experience += points;
+  
+  // Check for level up
+  const newLevel = Math.floor(this.stats.experience / 1000) + 1;
+  if (newLevel > this.stats.level) {
+    this.stats.level = newLevel;
+    // Award level up badge if it's a milestone
+    if (newLevel % 5 === 0) {
+      this.stats.badges.push({
+        name: `Level ${newLevel} Master`,
+        description: `Reached level ${newLevel}!`,
+        icon: '🏆',
+        earnedAt: new Date()
+      });
+    }
+  }
+};
+
+// Method to update streak
+userSchema.methods.updateStreak = function(hasActivityToday) {
+  if (hasActivityToday) {
+    this.stats.currentStreak += 1;
+    if (this.stats.currentStreak > this.stats.longestStreak) {
+      this.stats.longestStreak = this.stats.currentStreak;
+      
+      // Award streak badges
+      if (this.stats.currentStreak === 7) {
+        this.stats.badges.push({
+          name: 'Week Warrior',
+          description: '7 day streak!',
+          icon: '🔥',
+          earnedAt: new Date()
+        });
+      } else if (this.stats.currentStreak === 30) {
+        this.stats.badges.push({
+          name: 'Monthly Master',
+          description: '30 day streak!',
+          icon: '🌟',
+          earnedAt: new Date()
+        });
+      }
+    }
+  } else {
+    this.stats.currentStreak = 0;
+  }
+};
+
+// Method to get public profile
+userSchema.methods.getPublicProfile = function() {
+  const user = this.toObject();
+  delete user.password;
+  delete user.resetPasswordToken;
+  delete user.resetPasswordExpires;
+  delete user.verificationToken;
+  delete user.googleId;
+  delete user.facebookId;
+  
+  if (!user.preferences.privacy.profilePublic) {
+    return {
+      _id: user._id,
+      username: user.username,
+      avatar: user.avatar,
+      stats: {
+        level: user.stats.level
+      }
+    };
+  }
+  
+  if (!user.preferences.privacy.showLocation) {
+    delete user.location;
+  }
+  
+  if (!user.preferences.privacy.showStats) {
+    user.stats = {
+      level: user.stats.level
+    };
+  }
+  
+  return user;
+};
+
+// Static method to find users by location
+userSchema.statics.findNearby = function(coordinates, maxDistance = 10000) {
+  return this.find({
+    'location.coordinates': {
+      $near: {
+        $geometry: {
+          type: 'Point',
+          coordinates: coordinates
+        },
+        $maxDistance: maxDistance
+      }
+    },
+    'preferences.privacy.showLocation': true
+  }).select('-password -resetPasswordToken -resetPasswordExpires -verificationToken');
+};
+
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;

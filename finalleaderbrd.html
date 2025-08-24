@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Crawl - Elite Leaderboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a1f0f 0%, #0f2415 30%, #1a2e1f 70%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+            transition: font-size 0.3s ease;
+        }
+
+        body.font-small { font-size: 0.85em; }
+        body.font-large { font-size: 1.15em; }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(34, 197, 94, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 60%, rgba(59, 130, 246, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 60% 20%, rgba(52, 211, 153, 0.3) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px 20px;
+            border-radius: 24px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #34d399 0%, #10b981 30%, #60a5fa 70%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(52, 211, 153, 0.5);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1em;
+            font-weight: 400;
+        }
+
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px;
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 20px;
+            text-align: center;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.6);
+            white-space: nowrap;
+            min-width: 120px;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .tab:hover:not(.active) {
+            background: rgba(16, 185, 129, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px 15px;
+            border-radius: 20px;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #10b981, #34d399, #f59e0b);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-number {
+            font-size: 1.8em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #34d399, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .leaderboard {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 25px 20px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 25px;
+        }
+
+        .leaderboard h2 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 25px;
+            font-size: 1.6em;
+            font-weight: 600;
+        }
+
+        .podium {
+            display: flex;
+            justify-content: center;
+            align-items: end;
+            margin-bottom: 30px;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .podium-place {
+            text-align: center;
+            position: relative;
+            flex: 1;
+            max-width: 150px;
+            min-width: 120px;
+        }
+
+        .podium-user {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(34, 197, 94, 0.2));
+            color: white;
+            padding: 20px 15px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+            position: relative;
+            border: 1px solid rgba(52, 211, 153, 0.2);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            word-wrap: break-word;
+            cursor: pointer;
+        }
+
+        .podium-user:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.4);
+        }
+
+        .first-place { 
+            min-height: 140px;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(245, 158, 11, 0.2));
+        }
+        .second-place { 
+            min-height: 120px;
+            background: linear-gradient(135deg, rgba(156, 163, 175, 0.3), rgba(107, 114, 128, 0.2));
+        }
+        .third-place { 
+            min-height: 100px;
+            background: linear-gradient(135deg, rgba(205, 133, 63, 0.3), rgba(180, 83, 9, 0.2));
+        }
+
+        .crown {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2em;
+            filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.5));
+        }
+
+        .streak-below {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-top: 8px;
+            padding: 6px 12px;
+            background: rgba(239, 68, 68, 0.2);
+            border-radius: 12px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .user-row {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .user-row:hover {
+            background: rgba(16, 185, 129, 0.08);
+            transform: translateX(5px);
+            border-left: 3px solid #10b981;
+        }
+
+        .rank {
+            font-size: 1.2em;
+            font-weight: 700;
+            width: 50px;
+            text-align: center;
+            color: #34d399;
+        }
+
+        .user-info {
+            flex: 1;
+            margin-left: 15px;
+        }
+
+        .username {
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 4px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            max-width: 100%;
+        }
+
+        .user-level {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .streak-badge {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .points {
+            font-weight: 700;
+            background: linear-gradient(135deg, #10b981, #059669);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.1em;
+            text-align: right;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+            border-radius: 12px;
+            font-size: 0.7em;
+            margin: 0 5px;
+            font-weight: 600;
+        }
+
+        .achievement-showcase {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px 20px;
+            border-radius: 24px;
+            margin: 20px 0;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .achievement {
+            text-align: center;
+            padding: 15px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .achievement:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .achievement-emoji {
+            font-size: 2em;
+            display: block;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+        }
+
+        .achievement-name {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .achievement-details {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 10px;
+            border-radius: 8px;
+            width: 150px;
+            font-size: 0.8em;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .achievement:hover .achievement-details {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .accessibility-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 12px;
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            display: flex;
+            gap: 5px;
+        }
+
+        .font-size-btn {
+            margin: 2px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(59, 130, 246, 0.8);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .font-size-btn:hover {
+            background: #3b82f6;
+            transform: scale(1.05);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .monthly-leader {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.1));
+            border: 2px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .weekly-leader {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.2));
+            border: 2px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #0a1f0f, #16213e);
+            padding: 30px;
+            border-radius: 24px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            transform: translateY(50px);
+            transition: transform 0.5s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(239, 68, 68, 0.8);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            background: rgba(239, 68, 68, 1);
+            transform: scale(1.1);
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-title {
+            font-size: 1.8em;
+            background: linear-gradient(135deg, #34d399, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .header p {
+                font-size: 1em;
+            }
+            
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 15px 10px;
+            }
+
+            .stat-number {
+                font-size: 1.5em;
+            }
+            
+            .podium {
+                flex-direction: row;
+                justify-content: center;
+                gap: 20px;
+            }
+
+            .podium-place {
+                max-width: 100px;
+                min-width: 90px;
+            }
+
+            .podium-user {
+                padding: 15px 8px;
+                font-size: 0.9em;
+                overflow: hidden;
+                text-align: center;
+            }
+
+            .first-place { min-height: 100px; }
+            .second-place { min-height: 85px; }
+            .third-place { min-height: 70px; }
+
+            .crown {
+                font-size: 1.5em;
+                top: -10px;
+            }
+
+            .user-row {
+                padding: 12px;
+                margin-bottom: 5px;
+            }
+
+            .rank {
+                width: 35px;
+                font-size: 1em;
+            }
+
+            .user-info {
+                margin-left: 10px;
+            }
+
+            .username {
+                font-size: 0.95em;
+            }
+
+            .user-level {
+                font-size: 0.8em;
+            }
+
+            .points {
+                font-size: 1em;
+            }
+
+            .tab {
+                padding: 10px 15px;
+                font-size: 0.9em;
+                min-width: 100px;
+            }
+
+            .achievement-grid {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+                gap: 10px;
+            }
+
+            .achievement {
+                padding: 12px 8px;
+            }
+
+            .achievement-emoji {
+                font-size: 1.5em;
+            }
+
+            .achievement-name {
+                font-size: 0.75em;
+            }
+
+            .accessibility-controls {
+                top: 10px;
+                right: 10px;
+                padding: 8px;
+            }
+
+            .font-size-btn {
+                padding: 6px 8px;
+                font-size: 0.8em;
+            }
+
+            .leaderboard, .achievement-showcase {
+                padding: 20px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-row {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .podium-place {
+                max-width: 80px;
+                min-width: 70px;
+            }
+
+            .podium-user {
+                padding: 12px 6px;
+                font-size: 0.8em;
+            }
+
+            .user-row {
+                padding: 10px;
+            }
+
+            .username {
+                font-size: 0.9em;
+            }
+
+            .user-level {
+                font-size: 0.75em;
+            }
+
+            .streak-badge {
+                font-size: 0.7em;
+                padding: 1px 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="accessibility-controls">
+        <button class="font-size-btn" onclick="changeFontSize('small')">A-</button>
+        <button class="font-size-btn" onclick="changeFontSize('normal')">A</button>
+        <button class="font-size-btn" onclick="changeFontSize('large')">A+</button>
+    </div>
+
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="close-modal" onclick="closeModal()">✕</div>
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalUsername">User Profile</h2>
+                <p id="modalRank">Rank: #1</p>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- User details will be inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🌱 Carbon Crawl Elite</h1>
+            <p>Where Eco-Warriors Rise to Glory</p>
+            
+            <div class="stats-row">
+                <div class="stat-card" onclick="showStatDetails('players')">
+                    <div class="stat-number">12,847</div>
+                    <div class="stat-label">Elite Players</div>
+                </div>
+                <div class="stat-card" onclick="showStatDetails('coins')">
+                    <div class="stat-number">2.3M</div>
+                    <div class="stat-label">Carbon Coins</div>
+                </div>
+                <div class="stat-card" onclick="showStatDetails('trees')">
+                    <div class="stat-number">856</div>
+                    <div class="stat-label">Trees Saved</div>
+                </div>
+                <div class="stat-card" onclick="showStatDetails('co2')">
+                    <div class="stat-number">4.2T</div>
+                    <div class="stat-label">CO₂ Reduced</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-container">
+            <div class="tab active" onclick="switchTab('daily')">🔥 Daily</div>
+            <div class="tab" onclick="switchTab('weekly')">📊 Weekly</div>
+            <div class="tab" onclick="switchTab('monthly')">👑 Monthly</div>
+            <div class="tab" onclick="switchTab('all-time')">🏆 All-Time</div>
+        </div>
+
+        <div id="daily-content" class="tab-content active">
+            <div class="leaderboard">
+                <h2>🔥 Daily Champions</h2>
+                
+                <div class="podium">
+                    <div class="podium-place">
+                        <div class="podium-user second-place" onclick="showUserDetails('EcoQueen_Sarah', 2, 2420, 28, 12)">
+                            <div class="crown">🥈</div>
+                            <div class="username">EcoQueen_Sarah</div>
+                            <div class="points">2,420 CC</div>
+                            <div class="badge">Streak Master</div>
+                        </div>
+                        <div class="streak-below">🔥 12 day streak</div>
+                    </div>
+                    
+                    <div class="podium-place">
+                        <div class="podium-user first-place" onclick="showUserDetails('GreenMike2024', 1, 3856, 32, 25)">
+                            <div class="crown">👑</div>
+                            <div class="username">GreenMike2024</div>
+                            <div class="points">3,856 CC</div>
+                            <div class="badge">Legend</div>
+                        </div>
+                        <div class="streak-below">🔥 25 day streak</div>
+                    </div>
+                    
+                    <div class="podium-place">
+                        <div class="podium-user third-place" onclick="showUserDetails('WiseGrandpa', 3, 1920, 40, 8)">
+                            <div class="crown">🥉</div>
+                            <div class="username">WiseGrandpa</div>
+                            <div class="points">1,920 CC</div>
+                            <div class="badge">Elder Master</div>
+                        </div>
+                        <div class="streak-below">🔥 8 day streak</div>
+                    </div>
+                </div>
+
+                <div class="user-row" onclick="showUserDetails('ClimateNinja_Z', 4, 1534, 28, 15)">
+                    <div class="rank">4</div>
+                    <div class="user-info">
+                        <div class="username">ClimateNinja_Z</div>
+                        <div class="user-level">Level 28 • <span class="streak-badge">🔥 15 days</span></div>
+                    </div>
+                    <div class="points">1,534 CC</div>
+                </div>
+
+                <div class="user-row" onclick="showUserDetails('RetiredRecycler', 5, 1289, 45, 22)">
+                    <div class="rank">5</div>
+                    <div class="user-info">
+                        <div class="username">RetiredRecycler</div>
+                        <div class="user-level">Level 45 • <span class="streak-badge">🔥 22 days</span></div>
+                    </div>
+                    <div class="points">1,289 CC</div>
+                </div>
+
+                <div class="user-row" onclick="showUserDetails('ZoomZ_EcoWarrior', 6, 1167, 22, 5)">
+                    <div class="rank">6</div>
+                    <div class="user-info">
+                        <div class="username">ZoomZ_EcoWarrior</div>
+                        <div class="user-level">Level 22 • <span class="streak-badge">🔥 5 days</span></div>
+                    </div>
+                    <div class="points">1,167 CC</div>
+                </div>
+
+                <div class="user-row" onclick="showUserDetails('GrandmaGreen77', 7, 945, 38, 18)">
+                    <div class="rank">7</div>
+                    <div class="user-info">
+                        <div class="username">GrandmaGreen77</div>
+                        <div class="user-level">Level 38 • <span class="streak-badge">🔥 18 days</span></div>
+                    </div>
+                    <div class="points">945 CC</div>
+                </div>
+
+                <div class="user-row" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-left: 4px solid #10b981;" onclick="showUserDetails('You', 12, 720, 19, 7)">
+                    <div class="rank">12</div>
+                    <div class="user-info">
+                        <div class="username">You 🎯</div>
+                        <div class="user-level">Level 19 • <span class="streak-badge">🔥 7 days</span></div>
+                    </div>
+                    <div class="points">720 CC</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="weekly-content" class="tab-content">
+            <div class="leaderboard">
+                <h2>📊 Weekly Legends</h2>
+                
+                <div class="podium">
+                    <div class="podium-place">
+                        <div class="podium-user second-place weekly-leader" onclick="showUserDetails('EcoMaster_Ana', 2, 18420, 35, 14)">
+                            <div class="crown">🥈</div>
+                            <div class="username">EcoMaster_Ana</div>
+                            <div class="points">18,420 CC</div>
+                            <div class="badge">Weekly Champion</div>
+                        </div>
+                    </div>
+                    
+                    <div class="podium-place">
+                        <div class="podium-user first-place weekly-leader" onclick="showUserDetails('GreenMike2024', 1, 24856, 32, 25)">
+                            <div class="crown">👑</div>
+                            <div class="username">GreenMike2024</div>
+                            <div class="points">24,856 CC</div>
+                            <div class="badge">Weekly Legend</div>
+                        </div>
+                    </div>
+                    
+                    <div class="podium-place">
+                        <div class="podium-user third-place weekly-leader" onclick="showUserDetails('EcoGrandpa', 3, 16720, 42, 9)">
+                            <div class="crown">🥉</div>
+                            <div class="username">EcoGrandpa</div>
+                            <div class="points">16,720 CC</div>
+                            <div class="badge">Weekly Sage</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="monthly-content" class="tab-content">
+            <div class="leaderboard">
+                <h2>👑 Monthly Royalty</h2>
+                
+                <div class="podium">
+                    <div class="podium-place">
+                        <div class="podium-user second-place monthly-leader" onclick="showUserDetails('ClimateChampion', 2, 89420, 48, 28)">
+                            <div class="crown">🥈</div>
+                            <div class="username">ClimateChampion</div>
+                            <div class="points">89,420 CC</div>
+                            <div class="badge">Monthly Hero</div>
+                        </div>
+                    </div>
+                    
+                    <div class="podium-place">
+                        <div class="podium-user first-place monthly-leader" onclick="showUserDetails('EcoEmperor_Max', 1, 124856, 50, 30)">
+                            <div class="crown">👑</div>
+                            <div class="username">EcoEmperor_Max</div>
+                            <div class="points">124,856 CC</div>
+                            <div class="badge">Monthly Emperor</div>
+                        </div>
+                    </div>
+                    
+                    <div class="podium-place">
+                        <div class="podium-user third-place monthly-leader" onclick="showUserDetails('WisdomKeeper', 3, 76720, 45, 25)">
+                            <div class="crown">🥉</div>
+                            <div class="username">WisdomKeeper</div>
+                            <div class="points">76,720 CC</div>
+                            <div class="badge">Monthly Elder</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="all-time-content" class="tab-content">
+            <div class="leaderboard">
+                <h2>🏆 Hall of Fame</h2>
+                
+                <div class="podium">
+                    <div class="podium-place">
+                        <div class="podium-user second-place" onclick="showUserDetails('EcoLegend_Sam', 2, 890000, 60, 365)">
+                            <div class="crown">🥈</div>
+                            <div class="username">EcoLegend_Sam</div>
+                            <div class="points">890K CC</div>
+                            <div class="badge">Immortal</div>
+                        </div>
+                    </div>
+                    
+                    <div class="podium-place">
+                        <div class="podium-user first-place" onclick="showUserDetails('PlanetSaver_One', 1, 1200000, 65, 400)">
+                            <div class="crown">👑</div>
+                            <div class="username">PlanetSaver_One</div>
+                            <div class="points">1.2M CC</div>
+                            <div class="badge">Deity</div>
+                        </div>
+                    </div>
+                    
+                    <div class="podium-place">
+                        <div class="podium-user third-place" onclick="showUserDetails('EternalGuardian', 3, 720000, 58, 350)">
+                            <div class="crown">🥉</div>
+                            <div class="username">EternalGuardian</div>
+                            <div class="points">720K CC</div>
+                            <div class="badge">Eternal</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="achievement-showcase">
+            <h2>🏆 Your Elite Achievements</h2>
+            <div class="achievement-grid">
+                <div class="achievement">
+                    <span class="achievement-emoji">🌱</span>
+                    <div class="achievement-name">First Steps</div>
+                    <div class="achievement-details">Completed your first eco-challenge</div>
+                </div>
+                <div class="achievement">
+                    <span class="achievement-emoji">♻️</span>
+                    <div class="achievement-name">Recycling Pro</div>
+                    <div class="achievement-details">Recycled 100+ items</div>
+                </div>
+                <div class="achievement">
+                    <span class="achievement-emoji">🚶‍♂️</span>
+                    <div class="achievement-name">Walk Master</div>
+                    <div class="achievement-details">Walked 100km instead of driving</div>
+                </div>
+                <div class="achievement">
+                    <span class="achievement-emoji">⚡</span>
+                    <div class="achievement-name">Energy Saver</div>
+                    <div class="achievement-details">Saved 1000kWh of energy</div>
+                </div>
+                <div class="achievement">
+                    <span class="achievement-emoji">🔥</span>
+                    <div class="achievement-name">Streak Lord</div>
+                    <div class="achievement-details">Maintained a 7+ day streak</div>
+                </div>
+                <div class="achievement">
+                    <span class="achievement-emoji">👥</span>
+                    <div class="achievement-name">Team Player</div>
+                    <div class="achievement-details">Invited 5+ friends to join</div>
+                </div>
+                <div class="achievement">
+                    <span class="achievement-emoji">🏆</span>
+                    <div class="achievement-name">Champion</div>
+                    <div class="achievement-details">Reached top 10 on the leaderboard</div>
+                </div>
+                <div class="achievement">
+                    <span class="achievement-emoji">🌟</span>
+                    <div class="achievement-name">Elite Member</div>
+                    <div class="achievement-details">Reached level 20</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // TypeScript-like interface definitions
+        const UserProfile = {
+            username: '',
+            rank: 0,
+            points: 0,
+            level: 0,
+            streak: 0,
+            achievements: []
+        };
+
+        const StatDetails = {
+            players: "There are 12,847 active players competing to reduce their carbon footprint.",
+            coins: "Carbon Coins are earned by completing eco-friendly activities. 2.3M coins have been earned so far.",
+            trees: "Community efforts have saved 856 trees through reduced paper usage and planting initiatives.",
+            co2: "Our community has reduced CO₂ emissions by 4.2 tons through sustainable practices."
+        };
+
+        // React-like state management
+        let appState = {
+            currentTab: 'daily',
+            fontSize: 'normal',
+            modalOpen: false
+        };
+
+        // React-like component functions
+        function switchTab(tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab content and mark tab as active
+            document.getElementById(tabName + '-content').classList.add('active');
+            event.target.classList.add('active');
+            
+            // Update state
+            appState.currentTab = tabName;
+        }
+
+        function changeFontSize(size) {
+            document.body.classList.remove('font-small', 'font-normal', 'font-large');
+            document.body.classList.add(`font-${size}`);
+            appState.fontSize = size;
+        }
+
+        function showUserDetails(username, rank, points, level, streak) {
+            const modal = document.getElementById('userModal');
+            const modalUsername = document.getElementById('modalUsername');
+            const modalRank = document.getElementById('modalRank');
+            const modalBody = document.getElementById('modalBody');
+            
+            modalUsername.textContent = username;
+            modalRank.textContent = `Rank: #${rank}`;
+            
+            // Generate user details content
+            modalBody.innerHTML = `
+                <p><strong>Carbon Coins:</strong> ${points.toLocaleString()} CC</p>
+                <p><strong>Level:</strong> ${level}</p>
+                <p><strong>Current Streak:</strong> ${streak} days 🔥</p>
+                <p><strong>Impact:</strong> Saved approximately ${Math.round(points/100)} kg of CO₂</p>
+                <div style="margin-top: 20px;">
+                    <h3 style="margin-bottom: 10px;">Recent Achievements</h3>
+                    <ul style="padding-left: 20px;">
+                        <li>Daily Challenge Completer</li>
+                        <li>Carbon Footprint Reducer</li>
+                        <li>Eco-Warrior Level ${level}</li>
+                    </ul>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+            appState.modalOpen = true;
+        }
+
+        function showStatDetails(statType) {
+            const modal = document.getElementById('userModal');
+            const modalUsername = document.getElementById('modalUsername');
+            const modalRank = document.getElementById('modalRank');
+            const modalBody = document.getElementById('modalBody');
+            
+            modalUsername.textContent = document.querySelector(`.stat-card:nth-child(${
+                ['players', 'coins', 'trees', 'co2'].indexOf(statType) + 1
+            }) .stat-label`).textContent;
+            modalRank.textContent = "Community Achievement";
+            
+            modalBody.innerHTML = `
+                <p>${StatDetails[statType]}</p>
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px;">
+                    <h3 style="margin-bottom: 10px;">How You Can Help</h3>
+                    <ul style="padding-left: 20px;">
+                        <li>Complete daily challenges</li>
+                        <li>Invite friends to join</li>
+                        <li>Track your carbon footprint</li>
+                        <li>Share your achievements</li>
+                    </ul>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+            appState.modalOpen = true;
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('userModal');
+            modal.classList.remove('active');
+            appState.modalOpen = false;
+        }
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate stat cards on load
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.animation = 'slideInUp 0.6s ease forwards';
+                }, index * 100);
+            });
+            
+            // Add click effects to achievements
+            const achievements = document.querySelectorAll('.achievement');
+            achievements.forEach(achievement => {
+                achievement.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1.05)';
+                        setTimeout(() => {
+                            this.style.transform = 'scale(1)';
+                        }, 150);
+                    }, 100);
+                });
+            });
+
+            // Close modal when clicking outside
+            document.addEventListener('click', function(event) {
+                const modal = document.getElementById('userModal');
+                if (appState.modalOpen && event.target === modal) {
+                    closeModal();
+                }
+            });
+        });
+
+        // Add keyframe animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+            }
+            
+            .podium-user:hover {
+                animation: pulse 2s infinite;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

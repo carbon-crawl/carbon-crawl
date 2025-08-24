@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Crawl - Join the Green Revolution</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-green: #10b981;
+            --secondary-green: #34d399;
+            --dark-bg: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: rgba(255, 255, 255, 0.15);
+            --success-color: #22c55e;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1e293b 50%, #065f46 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            color: var(--text-primary);
+        }
+
+        /* Enhanced animated background elements */
+        .bg-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.3;
+        }
+
+        .leaf {
+            position: absolute;
+            background: linear-gradient(45deg, var(--primary-green), var(--secondary-green));
+            border-radius: 50% 0 50% 50%;
+            animation: float 8s ease-in-out infinite;
+            filter: blur(0.5px);
+        }
+
+        .leaf:nth-child(1) {
+            width: 40px;
+            height: 40px;
+            top: 15%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .leaf:nth-child(2) {
+            width: 50px;
+            height: 50px;
+            top: 65%;
+            right: 15%;
+            animation-delay: 3s;
+        }
+
+        .leaf:nth-child(3) {
+            width: 30px;
+            height: 30px;
+            bottom: 25%;
+            left: 20%;
+            animation-delay: 6s;
+        }
+
+        .leaf:nth-child(4) {
+            width: 35px;
+            height: 35px;
+            top: 40%;
+            left: 70%;
+            animation-delay: 4s;
+        }
+
+        .leaf:nth-child(5) {
+            width: 45px;
+            height: 45px;
+            bottom: 40%;
+            right: 25%;
+            animation-delay: 7s;
+        }
+
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg) scale(1); 
+                opacity: 0.3;
+            }
+            25% { 
+                transform: translateY(-10px) rotate(45deg) scale(1.1); 
+                opacity: 0.5;
+            }
+            50% { 
+                transform: translateY(-15px) rotate(90deg) scale(1.2); 
+                opacity: 0.4;
+            }
+            75% { 
+                transform: translateY(-10px) rotate(135deg) scale(1.1); 
+                opacity: 0.5;
+            }
+        }
+
+        /* Particle system */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--secondary-green);
+            border-radius: 50%;
+            opacity: 0;
+            animation: particleFloat 12s linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--text-primary);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .nav-logo-icon {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-link.primary {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            color: white;
+        }
+
+        .nav-link.primary:hover {
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Main content */
+        .main-content {
+            padding-top: 80px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* Auth card (used in login/register pages) */
+        .auth-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.8s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-green), var(--secondary-green));
+            opacity: 0.6;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .logo {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+            animation: logoPulse 3s ease-in-out infinite;
+            position: relative;
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--primary-green), var(--secondary-green));
+            border-radius: 18px;
+            z-index: -1;
+            opacity: 0;
+            animation: logoGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes logoGlow {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 0.3; }
+        }
+
+        .app-title {
+            color: var(--text-primary);
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: titleShine 4s ease-in-out infinite;
+        }
+
+        @keyframes titleShine {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .app-subtitle {
+            color: var(--text-secondary);
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        .tab-container {
+            display: flex;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 28px;
+            position: relative;
+        }
+
+        .tab-indicator {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: calc(50% - 4px);
+            height: calc(100% - 8px);
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 3px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .tab-indicator.register {
+            transform: translateX(100%);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px 20px;
+            text-align: center;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tab.active {
+            color: var(--text-primary);
+        }
+
+        .form-container {
+            position: relative;
+            min-height: 280px;
+        }
+
+        .form {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            opacity: 0;
+            transform: translateX(30px);
+            transition: all 0.4s ease;
+            pointer-events: none;
+        }
+
+        .form.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-label {
+            display: block;
+            color: #e2e8f0;
+            font-weight: 500;
+            margin-bottom: 6px;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            position: relative;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .input-field:focus + .input-label {
+            color: var(--primary-green);
+        }
+
+        .input-field::placeholder {
+            color: var(--text-muted);
+        }
+
+        .input-field.valid {
+            border-color: var(--success-color);
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.15);
+        }
+
+        .input-field.invalid {
+            border-color: var(--error-color);
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 20%, 40%, 60%, 80%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            user-select: none;
+            z-index: 2;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary-green);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            border: none;
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+            z-index: 1;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .divider {
+            text-align: center;
+            position: relative;
+            margin: 20px 0;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        }
+
+        .divider span {
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1e293b 50%, #065f46 100%);
+            padding: 0 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .social-login {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .social-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .social-icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        .help-text {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .help-text a {
+            color: var(--primary-green);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .help-text a:hover {
+            color: var(--secondary-green);
+            text-decoration: underline;
+        }
+
+        .features-preview {
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(16, 185, 129, 0.08);
+            border-radius: 12px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            animation: featuresPulse 6s ease-in-out infinite;
+        }
+
+        @keyframes featuresPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.2); }
+            50% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+        }
+
+        .features-title {
+            color: var(--primary-green);
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .features-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        .feature-tag {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--primary-green);
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .feature-tag:hover {
+            background: rgba(16, 185, 129, 0.25);
+            transform: scale(1.05);
+        }
+
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--error-color);
+        }
+
+        /* Landing page styles */
+        .hero {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 60px;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            color: white;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .features-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 60px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 24px;
+        }
+
+        .feature-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        /* Dashboard styles */
+        .dashboard {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .dashboard-title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dashboard-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--primary-green);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .dashboard-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title-icon {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(16, 185, 129, 0.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--primary-green);
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .activity-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .activity-time {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 80px;
+        }
+
+        /* Page transitions */
+        .page {
+            display: none;
+            width: 100%;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 15px;
+            }
+            
+            .nav-links {
+                gap: 10px;
+            }
+            
+            .nav-link {
+                padding: 6px 12px;
+                font-size: 14px;
+            }
+            
+            .container {
+                padding: 20px 16px;
+            }
+            
+            .auth-card {
+                padding: 28px 24px;
+                max-width: 100%;
+                margin: 0 8px;
+            }
+
+            .app-title {
+                font-size: 24px;
+            }
+
+            .social-login {
+                flex-direction: column;
+            }
+
+            .social-btn {
+                flex: none;
+            }
+
+            .features-list {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .feature-tag {
+                display: inline-block;
+                margin: 2px;
+            }
+            
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .features-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .dashboard-title {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-elements">
+        <div class="leaf"></div>
+        <div class="leaf"></div>
+        <div class="leaf"></div>
+        <div class="leaf"></div>
+        <div class="leaf"></div>
+    </div>
+
+    <div class="particles" id="particles"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-logo" onclick="showPage('home')">
+            <div class="nav-logo-icon">🌱</div>
+            Carbon Crawl
+        </div>
+        <div class="nav-links">
+            <div class="nav-link" onclick="showPage('home')">Home</div>
+            <div class="nav-link" onclick="showPage('login')">Sign In</div>
+            <div class="nav-link primary" onclick="showPage('register')">Sign Up</div>
+        </div>
+    </nav>
+
+    <!-- Main content area - pages will be shown/hidden based on navigation -->
+    <main class="main-content">
+        <!-- Home Page -->
+        <div id="home-page" class="page active">
+            <div class="container">
+                <div class="hero">
+                    <h1 class="hero-title">Track Your Carbon Footprint</h1>
+                    <p class="hero-subtitle">Join thousands of eco-conscious individuals making a real impact on our planet. Compete with friends, earn rewards, and reduce your environmental footprint.</p>
+                    
+                    <div class="cta-buttons">
+                        <button class="btn primary" onclick="showPage('register')">Get Started</button>
+                        <button class="btn secondary" onclick="showPage('login')">Sign In</button>
+                    </div>
+                    
+                    <div class="features-section">
+                        <div class="feature-card">
+                            <div class="feature-icon">📊</div>
+                            <h3 class="feature-title">Carbon Tracking</h3>
+                            <p class="feature-description">Monitor your daily carbon emissions with our intuitive tracking system.</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">🏆</div>
+                            <h3 class="feature-title">Rewards Program</h3>
+                            <p class="feature-description">Earn points and badges for eco-friendly choices and sustainable habits.</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">🌍</div>
+                            <h3 class="feature-title">Impact Analytics</h3>
+                            <p class="feature-description">See the real environmental impact of your actions with detailed analytics.</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">👥</div>
+                            <h3 class="feature-title">Community Challenges</h3>
+                            <p class="feature-description">Compete with friends and join community-wide sustainability challenges.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="footer">
+                <p>&copy; 2023 Carbon Crawl. Join the green revolution today.</p>
+            </footer>
+        </div>
+
+        <!-- Login Page -->
+        <div id="login-page" class="page">
+            <div class="container">
+                <div class="auth-card">
+                    <div class="logo-section">
+                        <div class="logo">🌱</div>
+                        <h1 class="app-title">Carbon Crawl</h1>
+                        <p class="app-subtitle">Track, Compete, Impact</p>
+                    </div>
+
+                    <form id="loginForm" novalidate>
+                        <div class="input-group">
+                            <label class="input-label">Email</label>
+                            <input type="email" class="input-field" id="loginEmail" placeholder="Enter your email address" required autocomplete="email">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Password</label>
+                            <div class="password-container">
+                                <input type="password" class="input-field" id="loginPassword" placeholder="Enter your password" required autocomplete="current-password">
+                                <span class="password-toggle" onclick="togglePassword(this)">👁️</span>
+                            </div>
+                        </div>
+                        <button type="submit" class="submit-btn">
+                            <span class="loading-spinner"></span>
+                            Sign In
+                        </button>
+                    </form>
+
+                    <div class="divider">
+                        <span>or continue with</span>
+                    </div>
+
+                    <div class="social-login">
+                        <button class="social-btn" onclick="signInWithGoogle()">
+                            <svg class="social-icon" viewBox="0 0 24 24">
+                                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                            </svg>
+                            Google
+                        </button>
+                        <button class="social-btn" onclick="signInWithFacebook()">
+                            <svg class="social-icon" viewBox="0 0 24 24" fill="#1877F2">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                            Facebook
+                        </button>
+                    </div>
+
+                    <div class="help-text">
+                        Don't have an account? <a onclick="showPage('register')">Sign up</a>
+                    </div>
+
+                    <div class="features-preview">
+                        <div class="features-title">Join thousands making a difference</div>
+                        <div class="features-list">
+                            <span class="feature-tag">Carbon Tracking</span>
+                            <span class="feature-tag">Rewards Program</span>
+                            <span class="feature-tag">Impact Analytics</span>
+                            <span class="feature-tag">Community Challenges</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Page -->
+        <div id="register-page" class="page">
+            <div class="container">
+                <div class="auth-card">
+                    <div class="logo-section">
+                        <div class="logo">🌱</div>
+                        <h1 class="app-title">Carbon Crawl</h1>
+                        <p class="app-subtitle">Track, Compete, Impact</p>
+                    </div>
+
+                    <form id="registerForm" novalidate>
+                        <div class="input-group">
+                            <label class="input-label">Full Name</label>
+                            <input type="text" class="input-field" id="registerName" placeholder="Enter your full name" required autocomplete="name">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Email</label>
+                            <input type="email" class="input-field" id="registerEmail" placeholder="Enter your email address" required autocomplete="email">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Username</label>
+                            <input type="text" class="input-field" id="registerUsername" placeholder="Choose a username" required autocomplete="username">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Password</label>
+                            <div class="password-container">
+                                <input type="password" class="input-field" id="registerPassword" placeholder="Create a password (min. 8 characters)" required autocomplete="new-password" minlength="8">
+                                <span class="password-toggle" onclick="togglePassword(this)">👁️</span>
+                            </div>
+                        </div>
+                        <button type="submit" class="submit-btn">
+                            <span class="loading-spinner"></span>
+                            Create Account
+                        </button>
+                    </form>
+
+                    <div class="divider">
+                        <span>or continue with</span>
+                    </div>
+
+                    <div class="social-login">
+                        <button class="social-btn" onclick="signInWithGoogle()">
+                            <svg class="social-icon" viewBox="0 0 24 24">
+                                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                            </svg>
+                            Google
+                        </button>
+                        <button class="social-btn" onclick="signInWithFacebook()">
+                            <svg class="social-icon" viewBox="0 0 24 24" fill="#1877F2">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                            Facebook
+                        </button>
+                    </div>
+
+                    <div class="help-text">
+                        Already have an account? <a onclick="showPage('login')">Sign in</a>
+                    </div>
+
+                    <div class="features-preview">
+                        <div class="features-title">Join thousands making a difference</div>
+                        <div class="features-list">
+                            <span class="feature-tag">Carbon Tracking</span>
+                            <span class="feature-tag">Rewards Program</span>
+                            <span class="feature-tag">Impact Analytics</span>
+                            <span class="feature-tag">Community Challenges</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboard-page" class="page">
+            <div class="container">
+                <div class="dashboard">
+                    <div class="dashboard-header">
+                        <h1 class="dashboard-title">Your Carbon Dashboard</h1>
+                        <p class="dashboard-subtitle">Track your environmental impact and see how you're making a difference</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">248</div>
+                            <div class="stat-label">Carbon Points Earned</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">42%</div>
+                            <div class="stat-label">Footprint Reduced</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">18</div>
+                            <div class="stat-label">Eco Challenges Completed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">#27</div>
+                            <div class="stat-label">Community Ranking</div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-section">
+                        <h2 class="section-title">
+                            <span class="section-title-icon">📊</span>
+                            Weekly Impact
+                        </h2>
+                        <p>Your carbon footprint is 42% lower than the average user. Keep up the good work!</p>
+                        <!-- Chart would go here in a real implementation -->
+                        <div style="height: 200px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-top: 20px;">
+                            Carbon Footprint Chart Visualization
+                        </div>
+                    </div>
+
+                    <div class="dashboard-section">
+                        <h2 class="section-title">
+                            <span class="section-title-icon">🏆</span>
+                            Recent Activities
+                        </h2>
+                        <ul class="activity-list">
+                            <li class="activity-item">
+                                <div class="activity-icon">🚗</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Reduced car usage</div>
+                                    <div class="activity-desc">You used public transport 5 times this week</div>
+                                </div>
+                                <div class="activity-time">2 hours ago</div>
+                            </li>
+                            <li class="activity-item">
+                                <div class="activity-icon">💡</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Energy saving</div>
+                                    <div class="activity-desc">Reduced electricity consumption by 15%</div>
+                                </div>
+                                <div class="activity-time">1 day ago</div>
+                            </li>
+                            <li class="activity-item">
+                                <div class="activity-icon">🌱</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Plant-based meals</div>
+                                    <div class="activity-desc">You had 4 plant-based meals this week</div>
+                                </div>
+                                <div class="activity-time">2 days ago</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="dashboard-section">
+                        <h2 class="section-title">
+                            <span class="section-title-icon">👥</span>
+                            Community Challenges
+                        </h2>
+                        <p>Join these challenges to earn more points and compete with friends!</p>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                            <div style="background: rgba(16, 185, 129, 0.1); padding: 15px; border-radius: 10px;">
+                                <h3 style="margin-bottom: 10px;">Zero Waste Week</h3>
+                                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px;">Reduce your waste for 7 days</p>
+                                <button class="btn primary" style="width: 100%; padding: 8px;">Join Challenge</button>
+                            </div>
+                            <div style="background: rgba(16, 185, 129, 0.1); padding: 15px; border-radius: 10px;">
+                                <h3 style="margin-bottom: 10px;">Bike to Work</h3>
+                                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px;">Cycle instead of driving for a week</p>
+                                <button class="btn primary" style="width: 100%; padding: 8px;">Join Challenge</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Enhanced JavaScript with modern ES6+ features and better UX
+        class CarbonCrawlApp {
+            constructor() {
+                this.currentPage = 'home';
+                this.isLoading = false;
+                this.init();
+                this.createParticles();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.setupFormValidation();
+                this.setupAccessibility();
+            }
+
+            // Create floating particles
+            createParticles() {
+                const particlesContainer = document.getElementById('particles');
+                const particleCount = 15;
+
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 12 + 's';
+                    particle.style.animationDuration = (8 + Math.random() * 8) + 's';
+                    particlesContainer.appendChild(particle);
+                }
+            }
+
+            setupEventListeners() {
+                // Form submissions
+                const loginForm = document.getElementById('loginForm');
+                const registerForm = document.getElementById('registerForm');
+                
+                if (loginForm) {
+                    loginForm.addEventListener('submit', (e) => this.handleLogin(e));
+                }
+                
+                if (registerForm) {
+                    registerForm.addEventListener('submit', (e) => this.handleRegister(e));
+                }
+
+                // Real-time validation
+                const inputs = document.querySelectorAll('.input-field');
+                inputs.forEach(input => {
+                    input.addEventListener('input', (e) => this.validateField(e.target));
+                    input.addEventListener('blur', (e) => this.validateField(e.target));
+                    input.addEventListener('focus', (e) => this.clearFieldError(e.target));
+                });
+
+                // Keyboard navigation
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Tab') {
+                        this.handleTabNavigation(e);
+                    }
+                });
+            }
+
+            setupFormValidation() {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const passwordRegex = /^.{8,}$/; // At least 8 characters
+                const nameRegex = /^[a-zA-Z\s]{2,}$/;
+                const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+
+                this.validationRules = {
+                    email: emailRegex,
+                    password: passwordRegex,
+                    name: nameRegex,
+                    username: usernameRegex
+                };
+            }
+
+            setupAccessibility() {
+                // Add ARIA labels and improve keyboard navigation
+                const forms = document.querySelectorAll('form');
+                forms.forEach(form => {
+                    form.setAttribute('role', 'form');
+                    form.setAttribute('aria-label', form.id === 'loginForm' ? 'Login form' : 'Registration form');
+                });
+            }
+
+            validateField(field) {
+                const fieldType = this.getFieldType(field);
+                const value = field.value.trim();
+                let isValid = true;
+                let errorMessage = '';
+
+                // Clear previous states
+                field.classList.remove('valid', 'invalid');
+
+                if (value === '') {
+                    if (field.required) {
+                        isValid = false;
+                        errorMessage = 'This field is required';
+                    }
+                } else {
+                    switch (fieldType) {
+                        case 'email':
+                            isValid = this.validationRules.email.test(value);
+                            errorMessage = isValid ? '' : 'Please enter a valid email address';
+                            break;
+                        case 'password':
+                            isValid = this.validationRules.password.test(value);
+                            errorMessage = isValid ? '' : 'Password must be at least 8 characters long';
+                            break;
+                        case 'name':
+                            isValid = this.validationRules.name.test(value);
+                            errorMessage = isValid ? '' : 'Please enter a valid name (letters and spaces only)';
+                            break;
+                        case 'username':
+                            isValid = this.validationRules.username.test(value);
+                            errorMessage = isValid ? '' : 'Username must be 3-20 characters (letters, numbers, underscores)';
+                            break;
+                    }
+                }
+
+                // Apply visual feedback
+                if (value !== '') {
+                    field.classList.add(isValid ? 'valid' : 'invalid');
+                }
+
+                // Handle error display
+                this.displayFieldError(field, errorMessage);
+
+                return isValid;
+            }
+
+            getFieldType(field) {
+                const id = field.id.toLowerCase();
+                if (id.includes('email')) return 'email';
+                if (id.includes('password')) return 'password';
+                if (id.includes('name')) return 'name';
+                if (id.includes('username')) return 'username';
+                return 'text';
+            }
+
+            displayFieldError(field, message) {
+                // Remove existing error message
+                const existingError = field.parentNode.querySelector('.error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+
+                if (message) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'error-message';
+                    errorDiv.style.cssText = `
+                        color: var(--error-color);
+                        font-size: 12px;
+                        margin-top: 4px;
+                        opacity: 0;
+                        animation: fadeIn 0.3s ease forwards;
+                    `;
+                    errorDiv.textContent = message;
+                    field.parentNode.appendChild(errorDiv);
+                }
+            }
+
+            clearFieldError(field) {
+                field.classList.remove('invalid');
+                const errorMessage = field.parentNode.querySelector('.error-message');
+                if (errorMessage) {
+                    errorMessage.style.animation = 'fadeOut 0.3s ease forwards';
+                    setTimeout(() => errorMessage.remove(), 300);
+                }
+            }
+
+            async handleLogin(e) {
+                e.preventDefault();
+                
+                if (this.isLoading) return;
+
+                const form = e.target;
+                const email = form.querySelector('#loginEmail').value.trim();
+                const password = form.querySelector('#loginPassword').value;
+
+                // Validate form
+                const isValid = this.validateForm(form);
+                if (!isValid) {
+                    this.showToast('Please correct the errors in the form', 'error');
+                    return;
+                }
+
+                this.setLoadingState(true, 'Sign In');
+
+                try {
+                    // Simulate API call
+                    await this.simulateApiCall(2000);
+                    
+                    // Success
+                    this.showToast('Welcome back to Carbon Crawl!', 'success');
+                    console.log('Login successful:', { email });
+                    
+                    // Redirect to dashboard
+                    setTimeout(() => {
+                        this.showPage('dashboard');
+                    }, 1500);
+                    
+                } catch (error) {
+                    this.showToast('Login failed. Please check your credentials.', 'error');
+                    console.error('Login error:', error);
+                } finally {
+                    this.setLoadingState(false, 'Sign In');
+                }
+            }
+
+            async handleRegister(e) {
+                e.preventDefault();
+                
+                if (this.isLoading) return;
+
+                const form = e.target;
+                const formData = {
+                    name: form.querySelector('#registerName').value.trim(),
+                    email: form.querySelector('#registerEmail').value.trim(),
+                    username: form.querySelector('#registerUsername').value.trim(),
+                    password: form.querySelector('#registerPassword').value
+                };
+
+                // Validate form
+                const isValid = this.validateForm(form);
+                if (!isValid) {
+                    this.showToast('Please correct the errors in the form', 'error');
+                    return;
+                }
+
+                this.setLoadingState(true, 'Create Account');
+
+                try {
+                    // Simulate API call
+                    await this.simulateApiCall(3000);
+                    
+                    // Success
+                    this.showToast('Welcome to Carbon Crawl! Your account has been created.', 'success');
+                    console.log('Registration successful:', formData);
+                    
+                    // Auto-redirect to dashboard
+                    setTimeout(() => {
+                        this.showPage('dashboard');
+                    }, 2000);
+                    
+                } catch (error) {
+                    this.showToast('Registration failed. Please try again.', 'error');
+                    console.error('Registration error:', error);
+                } finally {
+                    this.setLoadingState(false, 'Create Account');
+                }
+            }
+
+            validateForm(form) {
+                const inputs = form.querySelectorAll('.input-field[required]');
+                let isValid = true;
+
+                inputs.forEach(input => {
+                    if (!this.validateField(input)) {
+                        isValid = false;
+                    }
+                });
+
+                return isValid;
+            }
+
+            setLoadingState(loading, buttonText) {
+                this.isLoading = loading;
+                const activeForm = document.querySelector('form');
+                if (!activeForm) return;
+                
+                const submitBtn = activeForm.querySelector('.submit-btn');
+                const spinner = submitBtn.querySelector('.loading-spinner');
+
+                if (loading) {
+                    submitBtn.disabled = true;
+                    spinner.style.display = 'inline-block';
+                    submitBtn.innerHTML = `<span class="loading-spinner" style="display: inline-block;"></span>Processing...`;
+                } else {
+                    submitBtn.disabled = false;
+                    spinner.style.display = 'none';
+                    submitBtn.innerHTML = buttonText;
+                }
+            }
+
+            simulateApiCall(delay) {
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        // Simulate random success/failure for demo
+                        if (Math.random() > 0.1) { // 90% success rate
+                            resolve({ success: true });
+                        } else {
+                            reject(new Error('Network error'));
+                        }
+                    }, delay);
+                });
+            }
+
+            showPage(pageId) {
+                // Hide all pages
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+                
+                // Show the selected page
+                document.getElementById(`${pageId}-page`).classList.add('active');
+                
+                // Update current page
+                this.currentPage = pageId;
+                
+                // Scroll to top
+                window.scrollTo(0, 0);
+            }
+
+            showToast(message, type = 'success') {
+                // Remove existing toasts
+                document.querySelectorAll('.toast').forEach(toast => toast.remove());
+
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+
+                // Show toast
+                setTimeout(() => toast.classList.add('show'), 100);
+
+                // Hide toast
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, 4000);
+            }
+
+            handleTabNavigation(e) {
+                const focusableElements = document.querySelectorAll(
+                    'input, button, a, [tabindex]:not([tabindex="-1"])'
+                );
+                
+                const visibleElements = Array.from(focusableElements).filter(el => {
+                    return el.offsetParent !== null && !el.disabled;
+                });
+
+                const currentIndex = visibleElements.indexOf(document.activeElement);
+                
+                if (e.shiftKey) {
+                    // Shift + Tab (backwards)
+                    if (currentIndex === 0) {
+                        e.preventDefault();
+                        visibleElements[visibleElements.length - 1].focus();
+                    }
+                } else {
+                    // Tab (forwards)
+                    if (currentIndex === visibleElements.length - 1) {
+                        e.preventDefault();
+                        visibleElements[0].focus();
+                    }
+                }
+            }
+        }
+
+        // Social login functions
+        function signInWithGoogle() {
+            app.showToast('Google Sign-In integration would be implemented here', 'success');
+            console.log('Google Sign-In clicked');
+        }
+
+        function signInWithFacebook() {
+            app.showToast('Facebook Sign-In integration would be implemented here', 'success');
+            console.log('Facebook Sign-In clicked');
+        }
+
+        function togglePassword(element) {
+            const passwordInput = element.previousElementSibling;
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            element.textContent = type === 'password' ? '👁️' : '🙈';
+            
+            // Accessibility
+            element.setAttribute('aria-label', type === 'password' ? 'Show password' : 'Hide password');
+        }
+
+        function showPage(pageId) {
+            app.showPage(pageId);
+        }
+
+        // Initialize the application
+        const app = new CarbonCrawlApp();
+
+        // Add CSS animations for error messages
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; transform: translateY(0); }
+                to { opacity: 0; transform: translateY(-10px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Service Worker registration (for PWA capabilities)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+
+        // Theme detection and preference saving
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+        // Handle reduced motion preference
+        if (prefersReducedMotion.matches) {
+            document.documentElement.style.setProperty('--animation-duration', '0.01s');
+        }
+
+        console.log('Carbon Crawl Application Initialized! 🌱');
+    </script>
+</body>
+</html>

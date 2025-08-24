@@ -1,0 +1,292 @@
+const mongoose = require('mongoose');
+
+const challengeSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+    trim: true,
+    maxlength: 100
+  },
+  description: {
+    type: String,
+    required: true,
+    maxlength: 1000
+  },
+  type: {
+    type: String,
+    required: true,
+    enum: ['individual', 'team', 'community', 'global']
+  },
+  category: {
+    type: String,
+    required: true,
+    enum: [
+      'transportation', 'energy', 'food', 'waste', 
+      'water', 'shopping', 'general', 'education'
+    ]
+  },
+  difficulty: {
+    type: String,
+    enum: ['beginner', 'intermediate', 'advanced'],
+    default: 'beginner'
+  },
+  duration: {
+    type: Number,
+    required: true, // Duration in days
+    min: 1,
+    max: 365
+  },
+  startDate: {
+    type: Date,
+    required: true
+  },
+  endDate: {
+    type: Date,
+    required: true
+  },
+  goals: {
+    carbonTarget: { type: Number, min: 0 }, // kg CO2 to save
+    activityTarget: { type: Number, min: 0 }, // number of activities
+    participantTarget: { type: Number, min: 1 } // number of participants needed
+  },
+  rewards: {
+    xpReward: { type: Number, default: 100 },
+    badgeName: String,
+    badgeIcon: String,
+    description: String
+  },
+  rules: [String],
+  tags: [String],
+  creator: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  participants: [{
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    joinedAt: { type: Date, default: Date.now },
+    progress: {
+      carbonSaved: { type: Number, default: 0 },
+      activitiesCompleted: { type: Number, default: 0 },
+      lastActivity: Date
+    },
+    status: {
+      type: String,
+      enum: ['active', 'completed', 'dropped'],
+      default: 'active'
+    }
+  }],
+  teams: [{
+    name: { type: String, required: true },
+    members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    captain: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    progress: {
+      carbonSaved: { type: Number, default: 0 },
+      activitiesCompleted: { type: Number, default: 0 }
+    }
+  }],
+  status: {
+    type: String,
+    enum: ['draft', 'active', 'completed', 'cancelled'],
+    default: 'draft'
+  },
+  isPublic: {
+    type: Boolean,
+    default: true
+  },
+  isFeatured: {
+    type: Boolean,
+    default: false
+  },
+  maxParticipants: {
+    type: Number,
+    default: null // null = unlimited
+  },
+  images: [{
+    url: String,
+    caption: String
+  }],
+  stats: {
+    totalCarbonSaved: { type: Number, default: 0 },
+    totalActivities: { type: Number, default: 0 },
+    completionRate: { type: Number, default: 0 } // percentage
+  }
+}, {
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+});
+
+// Indexes
+challengeSchema.index({ startDate: 1, endDate: 1 });
+challengeSchema.index({ status: 1, isPublic: 1 });
+challengeSchema.index({ category: 1, difficulty: 1 });
+challengeSchema.index({ 'participants.user': 1 });
+
+// Virtual for participant count
+challengeSchema.virtual('participantCount').get(function() {
+  return this.participants.length;
+});
+
+// Virtual for active participant count
+challengeSchema.virtual('activeParticipantCount').get(function() {
+  return this.participants.filter(p => p.status === 'active').length;
+});
+
+// Virtual for challenge progress percentage
+challengeSchema.virtual('progressPercentage').get(function() {
+  if (this.goals.carbonTarget && this.stats.totalCarbonSaved) {
+    return Math.min(100, (this.stats.totalCarbonSaved / this.goals.carbonTarget) * 100);
+  }
+  if (this.goals.activityTarget && this.stats.totalActivities) {
+    return Math.min(100, (this.stats.totalActivities / this.goals.activityTarget) * 100);
+  }
+  return 0;
+});
+
+// Virtual to check if challenge is currently active
+challengeSchema.virtual('isActive').get(function() {
+  const now = new Date();
+  return this.status === 'active' && now >= this.startDate && now <= this.endDate;
+});
+
+// Method to check if user is participating
+challengeSchema.methods.isParticipating = function(userId) {
+  return this.participants.some(p => p.user.toString() === userId.toString());
+};
+
+// Method to join challenge
+challengeSchema.methods.addParticipant = function(userId) {
+  if (this.isParticipating(userId)) {
+    throw new Error('User already participating in this challenge');
+  }
+
+  if (this.maxParticipants && this.participantCount >= this.maxParticipants) {
+    throw new Error('Challenge is full');
+  }
+
+  if (!this.isActive) {
+    throw new Error('Challenge is not active');
+  }
+
+  this.participants.push({
+    user: userId,
+    joinedAt: new Date(),
+    progress: {
+      carbonSaved: 0,
+      activitiesCompleted: 0
+    },
+    status: 'active'
+  });
+
+  return this.save();
+};
+
+// Method to leave challenge
+challengeSchema.methods.removeParticipant = function(userId) {
+  const participantIndex = this.participants.findIndex(
+    p => p.user.toString() === userId.toString()
+  );
+
+  if (participantIndex === -1) {
+    throw new Error('User not participating in this challenge');
+  }
+
+  this.participants.splice(participantIndex, 1);
+  return this.save();
+};
+
+// Method to update participant progress
+challengeSchema.methods.updateParticipantProgress = function(userId, carbonSaved, activitiesCount = 1) {
+  const participant = this.participants.find(
+    p => p.user.toString() === userId.toString()
+  );
+
+  if (!participant) {
+    throw new Error('User not participating in this challenge');
+  }
+
+  // Update participant progress
+  participant.progress.carbonSaved += carbonSaved;
+  participant.progress.activitiesCompleted += activitiesCount;
+  participant.progress.lastActivity = new Date();
+
+  // Update challenge stats
+  this.stats.totalCarbonSaved += carbonSaved;
+  this.stats.totalActivities += activitiesCount;
+
+  // Check if participant completed the challenge
+  const carbonGoalMet = !this.goals.carbonTarget || 
+    participant.progress.carbonSaved >= this.goals.carbonTarget;
+  const activityGoalMet = !this.goals.activityTarget || 
+    participant.progress.activitiesCompleted >= this.goals.activityTarget;
+
+  if (carbonGoalMet && activityGoalMet && participant.status === 'active') {
+    participant.status = 'completed';
+  }
+
+  return this.save();
+};
+
+// Method to get leaderboard
+challengeSchema.methods.getLeaderboard = function(limit = 10) {
+  return this.participants
+    .filter(p => p.status === 'active' || p.status === 'completed')
+    .sort((a, b) => {
+      // Sort by carbon saved primarily, then by activities
+      if (b.progress.carbonSaved !== a.progress.carbonSaved) {
+        return b.progress.carbonSaved - a.progress.carbonSaved;
+      }
+      return b.progress.activitiesCompleted - a.progress.activitiesCompleted;
+    })
+    .slice(0, limit)
+    .map((participant, index) => ({
+      rank: index + 1,
+      user: participant.user,
+      carbonSaved: participant.progress.carbonSaved,
+      activitiesCompleted: participant.progress.activitiesCompleted,
+      status: participant.status,
+      joinedAt: participant.joinedAt
+    }));
+};
+
+// Static method to get active challenges
+challengeSchema.statics.getActiveChallenges = function() {
+  const now = new Date();
+  return this.find({
+    status: 'active',
+    isPublic: true,
+    startDate: { $lte: now },
+    endDate: { $gte: now }
+  }).populate('creator', 'username fullName avatar');
+};
+
+// Static method to get featured challenges
+challengeSchema.statics.getFeaturedChallenges = function() {
+  return this.find({
+    isFeatured: true,
+    isPublic: true,
+    status: { $in: ['active', 'draft'] }
+  }).populate('creator', 'username fullName avatar');
+};
+
+// Pre-save middleware to update challenge status based on dates
+challengeSchema.pre('save', function(next) {
+  const now = new Date();
+  
+  if (this.status === 'draft' && now >= this.startDate) {
+    this.status = 'active';
+  } else if (this.status === 'active' && now > this.endDate) {
+    this.status = 'completed';
+    // Calculate completion rate
+    const completedParticipants = this.participants.filter(p => p.status === 'completed').length;
+    this.stats.completionRate = this.participantCount > 0 ? 
+      (completedParticipants / this.participantCount) * 100 : 0;
+  }
+  
+  next();
+});
+
+const Challenge = mongoose.model('Challenge', challengeSchema);
+
+module.exports = Challenge;
